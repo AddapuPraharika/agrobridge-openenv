@@ -2,3 +2,5 @@ openenv
 openai
 numpy
 pandas
+fastapi
+uvicorn
