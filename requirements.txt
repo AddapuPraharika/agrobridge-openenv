@@ -1,0 +1,4 @@
+openenv
+openai
+numpy
+pandas

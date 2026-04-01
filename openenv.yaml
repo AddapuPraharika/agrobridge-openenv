@@ -1,0 +1,25 @@
+name: AgroBridgeEnv
+version: 1.0
+description: AI environment for matching farmers with agricultural jobs
+
+environment:
+  observation_space:
+    job: string
+    required_skill: string
+
+  action_space:
+    farmer_index: integer
+
+  reward_range:
+    min: 0
+    max: 1
+
+tasks:
+  - name: easy
+    description: match farmer skill with job
+
+  - name: medium
+    description: consider skill and partial reward
+
+  - name: hard
+    description: handle multiple farmer-job scenarios
