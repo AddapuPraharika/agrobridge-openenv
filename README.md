@@ -6,15 +6,7 @@ colorTo: blue
 sdk: docker
 pinned: false
 ---
----
 
-title: AgroBridge OpenEnv
-emoji: 🌾
-colorFrom: green
-colorTo: blue
-sdk: docker
-pinned: false
--------------
 
 # AgroBridge OpenEnv
 
