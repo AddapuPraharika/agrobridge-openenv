@@ -1,42 +1,40 @@
 ---
-title: AgroBridge OpenEnv
-emoji: 🌾
-colorFrom: green
-colorTo: blue
-sdk: docker
+
+title: "AgroBridge OpenEnv"
+emoji: "🌾"
+colorFrom: "green"
+colorTo: "blue"
+sdk: "docker"
 pinned: false
 ---
-
 
 # AgroBridge OpenEnv
 
 AgroBridge is an AI training environment that simulates matching farmers with agricultural jobs posted by landowners.
 
-Landowners create agricultural tasks such as irrigation, harvesting, or pesticide spraying. Farmers with different skill sets are available to perform these tasks. The goal of the AI agent is to assign the correct farmer to the correct job in order to maximize reward.
+Landowners create agricultural tasks such as irrigation, rice planting, or pesticide spraying. Farmers with different skill sets are available to perform these tasks. The AI agent must assign the correct farmer to the correct job in order to maximize reward.
 
-This environment simulates a real-world agricultural labor matching system.
-
----
-
-# Environment Overview
-
-The agent interacts with the environment using the standard OpenEnv interface.
-
-The main functions are:
-
-reset() → Initializes the environment and returns the first observation.
-
-step(action) → Executes the agent's action and returns observation, reward, and done status.
-
-state() → Returns the current state of the environment.
+This environment simulates a real-world agricultural labor allocation system.
 
 ---
 
-# Observation Space
+## Environment Overview
 
-The observation contains the current job requirements.
+The environment follows the OpenEnv interface.
 
-Example observation returned by the environment:
+Main functions:
+
+* reset() – Initializes the environment and returns the first observation
+* step(action) – Executes an action and returns observation, reward, and done
+* state() – Returns the current environment state
+
+---
+
+## Observation Space
+
+The observation contains the current agricultural job requirements.
+
+Example:
 
 {
 "job": {
@@ -46,97 +44,57 @@ Example observation returned by the environment:
 }
 }
 
-The observation includes:
-
-Job type
-Required skill
-Task difficulty
-
 ---
 
-# Action Space
+## Action Space
 
 The agent selects a farmer to assign to the job.
 
-Example action mapping:
+Example actions:
 
-0 → Assign farmer with cotton farming skill
+0 → Assign farmer with irrigation skill
 1 → Assign farmer with rice farming skill
-2 → Assign farmer with pesticide spraying skill
-
-The agent must select the correct farmer whose skill matches the job requirement.
+2 → Assign farmer with spraying skill
 
 ---
 
-# Tasks
+## Tasks
 
-The environment includes multiple agricultural tasks with increasing difficulty.
+The environment includes three tasks:
 
-Easy Task
-Irrigation task requiring basic farming knowledge.
-
-Medium Task
-Rice planting requiring crop-specific expertise.
-
-Hard Task
-Pesticide spraying requiring specialized spraying skill.
-
-These tasks simulate real-world agricultural work scenarios.
+Easy — Irrigation
+Medium — Rice planting
+Hard — Pesticide spraying
 
 ---
 
-# Reward Function
+## Reward Function
 
-The reward function measures how well the agent assigns farmers to jobs.
+Rewards measure how well the agent assigns farmers to jobs.
 
-Correct farmer assignment
-Reward between 0.5 and 1.0
+Correct assignment → reward between **0.5 – 1.0**
 
-Partial skill match
-Reward between 0.2 and 0.4
+Partial match → reward between **0.2 – 0.4**
 
-Incorrect assignment
-Reward 0
-
-The agent learns to maximize reward by selecting the correct farmer for each job.
+Incorrect assignment → reward **0**
 
 ---
 
-# Example Environment Output
+## Deployment
 
-Example response returned by the environment:
-
-{
-"job": {
-"job": "pesticide spraying",
-"required_skill": "spraying",
-"difficulty": "hard"
-},
-"reward": 0.5,
-"done": true
-}
-
-This indicates the environment evaluated the agent's action and returned the corresponding reward.
-
----
-
-# Deployment
-
-The environment is containerized using Docker and deployed on Hugging Face Spaces.
+The environment is deployed on **Hugging Face Spaces** using Docker.
 
 The project includes:
 
-Dockerfile
-openenv.yaml configuration
-FastAPI server
-OpenEnv environment implementation
-
-This ensures the environment can be automatically validated and executed by the evaluation system.
+* Dockerfile
+* FastAPI server
+* openenv.yaml configuration
+* OpenEnv environment implementation
 
 ---
 
-# Goal of the Environment
+## Goal
 
-The objective of the agent is to maximize total reward by learning optimal job assignments between farmers and agricultural tasks.
+The goal of the agent is to maximize reward by assigning the correct farmer to each agricultural task.
 
-This environment demonstrates how reinforcement learning agents can assist in real-world agricultural labor allocation problems.
+AgroBridge demonstrates how reinforcement learning environments can simulate real-world agricultural labor matching problems.
