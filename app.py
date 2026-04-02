@@ -1,19 +1,43 @@
 from fastapi import FastAPI
-from env import AgroBridgeEnv
+from env import AgroBridgeEnv, AgroBridgeAction
 
 app = FastAPI()
 
+# Create environment instance
+env = AgroBridgeEnv()
+
+
 @app.get("/")
-def run_env():
-    env = AgroBridgeEnv()
+async def root():
+    return {"message": "AgroBridge OpenEnv environment is running"}
 
-    state = env.reset()
-    action = 0
 
-    state, reward, done = env.step(action)
+@app.post("/reset")
+async def reset():
+    result = await env.reset()
+    return {
+        "observation": result.observation,
+        "reward": result.reward,
+        "done": result.done
+    }
+
+
+@app.post("/step")
+async def step(action: dict):
+
+    message = action.get("message", "")
+
+    result = await env.step(
+        AgroBridgeAction(message=message)
+    )
 
     return {
-        "job": state,
-        "reward": reward,
-        "done": done
+        "observation": result.observation,
+        "reward": result.reward,
+        "done": result.done
     }
+
+
+@app.get("/state")
+async def state():
+    return env.state()
