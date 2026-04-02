@@ -5,7 +5,6 @@ app = FastAPI()
 
 env = AgroBridgeEnv()
 
-
 @app.get("/")
 async def root():
     return {"message": "AgroBridge OpenEnv environment is running"}
@@ -14,7 +13,6 @@ async def root():
 @app.post("/reset")
 async def reset():
     result = await env.reset()
-
     return {
         "observation": result.observation,
         "reward": result.reward,
@@ -22,10 +20,8 @@ async def reset():
     }
 
 
-
 @app.post("/step")
 async def step(action: dict):
-
     message = action.get("message", "")
 
     result = await env.step(
