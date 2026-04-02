@@ -3,7 +3,6 @@ from env import AgroBridgeEnv, AgroBridgeAction
 
 app = FastAPI()
 
-# Create environment instance
 env = AgroBridgeEnv()
 
 
@@ -15,11 +14,13 @@ async def root():
 @app.post("/reset")
 async def reset():
     result = await env.reset()
+
     return {
         "observation": result.observation,
         "reward": result.reward,
         "done": result.done
     }
+
 
 
 @app.post("/step")
