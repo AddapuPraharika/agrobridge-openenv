@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from env import AgroBridgeEnv, AgroBridgeAction
+from env import AgroBridgeEnv
+from models import AgroBridgeAction
 
 app = FastAPI()
 
