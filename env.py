@@ -73,7 +73,6 @@ class AgroBridgeEnv:
         message = action.message.lower()
 
         selected_farmer = None
-
         for farmer in self.farmers:
             if farmer.name.lower() in message and farmer.available:
                 selected_farmer = farmer
@@ -99,7 +98,6 @@ class AgroBridgeEnv:
 
         selected_farmer.available = False
         self.episode_rewards.append(reward)
-
         done = self.step_count >= self.max_steps or reward >= 1.0
 
         if done:
@@ -114,8 +112,8 @@ class AgroBridgeEnv:
             obs = (
                 f"Assigned {selected_farmer.name} "
                 f"(skill:{selected_farmer.skill}, level:{selected_farmer.experience}) "
-                f"— reward: {reward:.2f}. "
-                f"Not optimal. Step {self.step_count}/{self.max_steps}. "
+                f"— reward: {reward:.2f}. Not optimal. "
+                f"Step {self.step_count}/{self.max_steps}. "
                 + self._build_observation()
             )
 
