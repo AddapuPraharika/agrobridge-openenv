@@ -1,0 +1,52 @@
+name: AgroBridgeEnv
+version: "1.0"
+description: >
+  RL environment for intelligent agricultural job-worker matching in rural India.
+  An AI agent learns to assign the right farmer to the right job based on skill,
+  experience, and urgency — maximizing reward across multi-step episodes.
+
+environment:
+  observation_space:
+    type: string
+    description: Natural language description of current job and available farmers
+
+  action_space:
+    type: string
+    description: Natural language message naming the farmer to assign
+
+  reward_range:
+    min: 0.0
+    max: 1.0
+
+  max_steps: 3
+
+tasks:
+  - name: cotton_harvesting
+    description: Harvest mature cotton from 5-acre field before rainfall
+    difficulty: easy
+    required_skill: cotton
+    urgency: LOW
+
+  - name: rice_planting
+    description: Plant paddy seedlings across flooded fields within monsoon window
+    difficulty: medium
+    required_skill: rice
+    urgency: MEDIUM
+
+  - name: pesticide_spraying
+    description: Emergency pesticide spraying to control locust outbreak across 12 acres
+    difficulty: hard
+    required_skill: spraying
+    urgency: HIGH
+
+  - name: tractor_ploughing
+    description: Deep ploughing of hard soil before sowing season begins
+    difficulty: hard
+    required_skill: tractor
+    urgency: MEDIUM
+
+  - name: irrigation_management
+    description: Manage drip irrigation channels for drought-affected crops urgently
+    difficulty: medium
+    required_skill: water
+    urgency: HIGH
