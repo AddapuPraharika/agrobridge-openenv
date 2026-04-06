@@ -1,3 +1,11 @@
+---
+title: AgroBridge OpenEnv
+emoji: 🌾
+colorFrom: green
+colorTo: yellow
+sdk: docker
+pinned: false
+---
 # 🌾 AgroBridge OpenEnv
 
 > **A reinforcement learning environment for intelligent agricultural labor matching in rural India — built on the OpenEnv framework for the Meta × PyTorch OpenEnv Hackathon.**
