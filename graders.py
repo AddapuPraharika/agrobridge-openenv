@@ -13,7 +13,9 @@ EXPERIENCE_BONUS = {
 URGENCY_MULTIPLIER = {1: 1.0, 2: 1.1, 3: 1.2}
 
 
-def get_skill_group(skill: str) -> str:
+def get_skill_group(skill: str):
+    if skill is None:
+        return None
     for group, skills in SKILL_GROUPS.items():
         if skill in skills:
             return group
@@ -30,10 +32,13 @@ def grade_assignment(
 
     if farmer_skill == required_skill:
         base_reward = 1.0
-    elif get_skill_group(farmer_skill) == get_skill_group(required_skill):
-        base_reward = 0.5
     else:
-        base_reward = 0.0
+        farmer_group = get_skill_group(farmer_skill)
+        required_group = get_skill_group(required_skill)
+        if farmer_group is not None and farmer_group == required_group:
+            base_reward = 0.5
+        else:
+            base_reward = 0.0
 
     bonus = EXPERIENCE_BONUS.get(difficulty, {}).get(farmer_experience, 0.0)
     multiplier = URGENCY_MULTIPLIER.get(urgency, 1.0)
