@@ -3,6 +3,8 @@ from tasks import tasks
 from models import Farmer, AgroBridgeAction, StepResult
 from graders import grade_assignment
 
+MAX_STEPS = 3
+
 
 class AgroBridgeEnv:
 
@@ -18,7 +20,7 @@ class AgroBridgeEnv:
         ]
         self.current_task = None
         self.step_count = 0
-        self.max_steps = 3
+        self.max_steps = MAX_STEPS
         self.episode_rewards = []
 
     def _randomize_availability(self):
@@ -50,6 +52,13 @@ class AgroBridgeEnv:
         self.episode_rewards = []
         self._randomize_availability()
         return StepResult(observation=self._build_observation(), reward=0.0, done=False)
+
+    async def close(self) -> None:
+        self.current_task = None
+        self.step_count = 0
+        self.episode_rewards = []
+        for farmer in self.farmers:
+            farmer.available = True
 
     def state(self) -> dict:
         return {
