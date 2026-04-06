@@ -26,22 +26,13 @@ async def root():
 @app.post("/reset")
 async def reset():
     result = await env.reset()
-    return {
-        "observation": result.observation,
-        "reward": result.reward,
-        "done": result.done,
-    }
+    return result
 
 
 @app.post("/step")
-async def step(action: dict):
-    message = action.get("message", "")
-    result = await env.step(AgroBridgeAction(message=message))
-    return {
-        "observation": result.observation,
-        "reward": result.reward,
-        "done": result.done,
-    }
+async def step(action: AgroBridgeAction):
+    result = await env.step(action)
+    return result
 
 
 @app.get("/state")
