@@ -362,6 +362,28 @@ agrobridge-openenv/
 
 ---
 
+## 🚀 Live API
+
+**API Status**
+https://praharika18-agrobridge-openenv.hf.space
+
+## 📘 API Documentation (Swagger)
+
+Interactive Swagger documentation is available here:
+
+https://praharika18-agrobridge-openenv.hf.space/docs
+
+Using Swagger, you can directly test the API endpoints such as:
+
+* `POST /reset` → Reset the RL environment
+* `POST /step` → Perform an action in the environment
+* `GET /state` → Retrieve the current environment state
+* `POST /close` → Close the environment
+
+This interface allows developers and evaluators to interact with the AgroBridge OpenEnv environment without writing any code.
+
+---
+
 ## 🌐 Live Demo
 
 👉 **[https://praharika18-agrobridge-openenv.hf.space](https://praharika18-agrobridge-openenv.hf.space)**
