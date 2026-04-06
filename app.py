@@ -1,16 +1,21 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from env import AgroBridgeEnv
 from models import AgroBridgeAction
-
-app = FastAPI(title="AgroBridge OpenEnv", version="1.0")
 
 env = None
 
 
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global env
     env = AgroBridgeEnv()
+    yield
+    if env is not None:
+        await env.close()
+
+
+app = FastAPI(title="AgroBridge OpenEnv", version="1.0", lifespan=lifespan)
 
 
 @app.get("/")
@@ -42,3 +47,9 @@ async def step(action: dict):
 @app.get("/state")
 async def state():
     return env.state()
+
+
+@app.post("/close")
+async def close():
+    await env.close()
+    return {"status": "closed"}
