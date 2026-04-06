@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from openai import OpenAI
 
-from env import AgroBridgeEnv
+from env import AgroBridgeEnv, MAX_STEPS
 from models import AgroBridgeAction
 
 
@@ -21,7 +21,6 @@ MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 TASK_NAME = os.getenv("TASK_NAME", "agrobridge")
 BENCHMARK = os.getenv("BENCHMARK", "agrobridge-openenv")
 
-MAX_STEPS = 8
 TEMPERATURE = 0.7
 MAX_TOKENS = 150
 SUCCESS_SCORE_THRESHOLD = 0.5
@@ -153,6 +152,8 @@ async def main():
 
     except Exception as e:
         print(f"[DEBUG] Episode error: {e}", flush=True)
+    finally:
+        await env.close()
 
     log_end(success=success, steps=steps_taken, rewards=rewards)
 
