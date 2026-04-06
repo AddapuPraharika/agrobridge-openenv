@@ -6,168 +6,160 @@ colorTo: yellow
 sdk: docker
 pinned: false
 ---
-🌾 AgroBridge OpenEnv
+🌾AgroBridge OpenEnv
 
-An OpenEnv reinforcement learning environment for intelligent agricultural labor matching in rural India.
+AgroBridge OpenEnv is a reinforcement learning environment designed for intelligent agricultural labor matching in rural India.
 
-Running on HF OpenEnv Spec Python
+Built using the OpenEnv framework for the Meta × PyTorch OpenEnv Hackathon.
 
 🚨The Problem
 
-India has 120 million agricultural laborers — the largest farm workforce in the world. Yet every harvest season:
+India has 120 million agricultural laborers, the largest farm workforce in the world. Yet every harvest season:
 
-30% of crops are lost due to labor shortages and wrong skill assignments
-Farmers lose an estimated ₹1.5 lakh crore (~$18 billion) annually from harvest delays
-74% of rural job seekers are mismatched to tasks outside their skill set
+30% of crops are lost due to labor shortages and incorrect skill assignments
+Farmers lose approximately ₹1.5 lakh crore (~$18 billion) annually from harvest delays
+74% of rural workers are mismatched to tasks outside their skill set
 
-No intelligent system exists to dynamically match workers to jobs based on skill, experience, and urgency.
+Agricultural job allocation is complex because:
 
-This is not a simple scheduling problem. Farmer availability changes daily, job urgency varies, and skill compatibility is nuanced. A rule-based system breaks down immediately in real conditions.
+Worker availability changes daily
+Job urgency varies
+Skill compatibility matters
 
-AgroBridge teaches an AI agent to solve this matching problem optimally — learning from reward signals across thousands of episodes.
+Rule-based systems fail in such dynamic environments.
+
+AgroBridge trains an AI agent to learn optimal labor assignments using reinforcement learning.
 
 💡Solution
 
-AgroBridge is a multi-step reinforcement learning environment built on the OpenEnv framework.
+AgroBridge is a multi-step RL environment where an AI agent must assign the most suitable farmer to an agricultural job.
 
-An AI agent:
+The agent learns that:
 
-Observes the current agricultural job
-Evaluates available farmers by skill and experience
-Assigns the best match
-
-The agent learns:
-
-Exact skill matching earns maximum reward
-Partial skill overlap earns partial reward
+Exact skill matching gives maximum reward
+Partial skill overlap gives partial reward
 Experience level matters for difficult jobs
-High-urgency jobs amplify both rewards and penalties
+High urgency increases reward impact
 
-Unlike a lookup table, the agent must handle dynamic farmer availability, varying urgency, and multi-step decision making — making this a genuine RL problem.
+The agent must operate under uncertain farmer availability and time constraints, making it a real RL decision problem.
 
 🔁Environment API
 
-Fully compliant with the OpenEnv standard:
+The environment follows the OpenEnv standard.
 
 Endpoint	Method	Description
 /	GET	Health check
-/reset	POST	Start new episode — returns job observation
-/step	POST	Assign a farmer — returns reward + next observation
-/state	GET	Full environment state
+/reset	POST	Start a new episode
+/step	POST	Assign a farmer and receive reward
+/state	GET	View internal environment state
 /close	POST	Close and reset the environment
+
 👁️Observation Space
 
-Rich natural language observation given to the agent at each step:
+Each step returns a natural language observation:
 
-Job: pesticide spraying.
-Description: Emergency pesticide spraying to control locust outbreak across 12 acres.
-Required skill: spraying. Difficulty: hard. Urgency: HIGH.
-Step: 1/3.
-Available farmers: Ramesh (skill:cotton, level:senior), Mahesh (skill:spraying, level:senior),
-Dinesh (skill:tractor, level:junior)
+Job: pesticide spraying
+Description: Emergency pesticide spraying to control locust outbreak across 12 acres
+Required skill: spraying
+Difficulty: hard
+Urgency: HIGH
+Step: 1/3
 
-The agent sees:
+Available farmers:
+Ramesh (skill: cotton, level: senior)
+Mahesh (skill: spraying, level: senior)
+Dinesh (skill: tractor, level: junior)
 
-job details
+The agent must reason about:
+
+job requirements
+farmer skills
 urgency level
-difficulty
-step count
-currently available farmers
-
-This forces the agent to reason under real-world constraints.
+remaining steps
+available workers
 
 🎮Action Space
 
-The agent responds in natural language. The environment parses the farmer name and skill:
+The agent responds with a natural language assignment.
+
+Example:
 
 {
-  "message": "Assign Mahesh because he is a senior spraying expert and the job urgently needs pesticide spraying."
+  "message": "Assign Mahesh because he is a senior spraying expert and the job urgently requires pesticide spraying."
 }
+
+The environment extracts the farmer name and skill from the message.
+
 🏆Reward Function
 
-The reward function is difficulty-aware, experience-sensitive, and urgency-amplified.
+The reward function considers skill match, experience, and urgency.
 
-Base Reward (Skill Match)
-Match Type	Base Reward
-Exact skill match	1.0
-Same skill group (partial)	0.5
+Base Skill Match
+Match Type	Reward
+Exact skill	1.0
+Same skill group	0.5
 No match	0.0
 Experience Bonus
-Difficulty	Senior Farmer	Junior Farmer
+Difficulty	Senior	Junior
 Easy	+0.0	+0.0
 Medium	+0.1	-0.1
 Hard	+0.2	-0.2
 Urgency Multiplier
 Urgency	Multiplier
-LOW (1)	×1.0
-MEDIUM (2)	×1.1
-HIGH (3)	×1.2
-Final Reward Formula
-final_reward = min(1.0, max(0.0, (base_reward + experience_bonus) × urgency_multiplier))
-Example
+LOW	×1.0
+MEDIUM	×1.1
+HIGH	×1.2
+Final Reward
+final_reward = min(1.0, max(0.0, (base_reward + experience_bonus) * urgency_multiplier))
 
-Senior spraying farmer assigned to hard pesticide spraying with HIGH urgency:
-
-base = 1.0
-bonus = +0.2
-multiplier = ×1.2
-
-final = min(1.0, 1.2 × 1.2) = 1.0
-
-Junior cotton farmer assigned to the same job:
-
-base = 0.0
-bonus = -0.2
-multiplier = ×1.2
-
-final = max(0.0, -0.24) = 0.0
 📋Tasks
-Job	Required Skill	Difficulty	Urgency	Description
-Cotton Harvesting	cotton	Easy	LOW	Harvest mature cotton before rainfall
-Rice Planting	rice	Medium	MEDIUM	Plant paddy within monsoon window
-Pesticide Spraying	spraying	Hard	HIGH	Emergency locust outbreak control
-Tractor Ploughing	tractor	Hard	MEDIUM	Deep ploughing before sowing season
-Irrigation Management	water	Medium	HIGH	Manage drip irrigation for drought crops
+Job	Skill	Difficulty	Urgency	Description
+Cotton Harvesting	cotton	Easy	LOW	Harvest cotton before rainfall
+Rice Planting	rice	Medium	MEDIUM	Plant paddy during monsoon
+Pesticide Spraying	spraying	Hard	HIGH	Emergency pest control
+Tractor Ploughing	tractor	Hard	MEDIUM	Prepare land before sowing
+Irrigation Management	water	Medium	HIGH	Manage drip irrigation
+
 👨‍🌾Farmer Pool
-Name	Skill	Experience	Notes
-Ramesh	cotton	Senior	Best for cotton tasks
-Suresh	rice	Junior	Rice planting specialist
-Mahesh	spraying	Senior	Expert in pesticide operations
-Dinesh	tractor	Junior	Field machinery operator
-Naresh	water	Senior	Irrigation management expert
-Lokesh	cotton	Junior	Secondary cotton worker
-Ganesh	rice	Senior	Experienced rice planting lead
+Name	Skill	Experience
+Ramesh	cotton	Senior
+Suresh	rice	Junior
+Mahesh	spraying	Senior
+Dinesh	tractor	Junior
+Naresh	water	Senior
+Lokesh	cotton	Junior
+Ganesh	rice	Senior
 
-Farmer availability is randomized each episode (70% probability available).
+Farmer availability is randomized each episode (70% probability).
 
-🔄Multi-Step Episode Design
+🔄Multi-Step Episodes
 
-Each episode runs up to 3 steps.
+Each episode has 3 steps.
 
-The episode ends when:
+Possible outcomes:
 
-Reward ≥ 1.0 → success
-3 steps exhausted
+Perfect assignment → episode ends early
+Suboptimal assignments → agent retries
 
 Example:
 
-Episode Start → reset()
+Step 1 → wrong farmer → reward 0.0
+Step 2 → partial match → reward 0.55
+Step 3 → perfect match → reward 1.0
 
-Step 1: wrong farmer → reward 0.0
-Step 2: partial match → reward 0.55
-Step 3: exact senior match → reward 1.0 → done
-📊Sample Inference Output
+📊Example Output
 [START] task=agrobridge env=agrobridge-openenv model=Qwen/Qwen2.5-72B-Instruct
-[STEP] step=1 action=Assign Mahesh, senior spraying expert for pesticide job reward=1.00 done=true error=null
+[STEP] step=1 action=Assign Mahesh reward=1.00 done=true
 [END] success=true steps=1 rewards=1.00
-🚀Setup Instructions
+
+🚀Setup
 Run Locally
 git clone https://huggingface.co/spaces/praharika18/agrobridge-openenv
 cd agrobridge-openenv
 pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 7860
 Run Inference
-export HF_TOKEN=your_hf_token
+export HF_TOKEN=your_token
 export API_BASE_URL=https://router.huggingface.co/v1
 export MODEL_NAME=Qwen/Qwen2.5-72B-Instruct
 
@@ -176,12 +168,14 @@ Run with Docker
 docker build -t agrobridge-openenv .
 
 docker run -p 7860:7860 \
-  -e HF_TOKEN=your_hf_token \
-  -e API_BASE_URL=https://router.huggingface.co/v1 \
-  -e MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
-  agrobridge-openenv
-📁File Structure
+-e HF_TOKEN=your_token \
+-e API_BASE_URL=https://router.huggingface.co/v1 \
+-e MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
+agrobridge-openenv
+
+📁Project Structure
 agrobridge-openenv/
+│
 ├── app.py
 ├── env.py
 ├── models.py
@@ -192,22 +186,26 @@ agrobridge-openenv/
 ├── Dockerfile
 ├── requirements.txt
 └── README.md
-🤖Model & Infrastructure
+🤖 Model & Infrastructure
 
-Model: Qwen/Qwen2.5-72B-Instruct via HuggingFace Router
-API: OpenAI-compatible client
+Model: Qwen/Qwen2.5-72B-Instruct
+API: OpenAI compatible client
 
 Infrastructure:
 
 CPU Basic (2 vCPU, 16GB RAM)
-Runtime < 2 minutes per episode
-Max steps per episode: 3
+Runtime < 2 minutes
+Max steps = 3
+
 🌐Live Demo
 
-👉 https://praharika18-agrobridge-openenv.hf.space
+https://praharika18-agrobridge-openenv.hf.space
 
 👩‍💻Author
 
-Built by Addapu Praharika for the Meta × PyTorch OpenEnv Hackathon organized by Scaler School of Technology.
+Addapu Praharika
+B.Tech CSE (AI & ML)
 
-AgroBridge addresses a real problem affecting 120 million agricultural workers in rural India, demonstrating how reinforcement learning can optimize real-world labor allocation systems.
+Project created for the Meta × PyTorch OpenEnv Hackathon.
+
+AgroBridge demonstrates how reinforcement learning can improve agricultural workforce allocation, impacting millions of farmers across rural India.
