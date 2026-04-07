@@ -1,9 +1,9 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
 from env import AgroBridgeEnv
-from models import AgroBridgeAction
+from models import AgroBridgeAction, StepResult
 
-env = None
+env: AgroBridgeEnv | None = None
 
 
 @asynccontextmanager
@@ -15,32 +15,57 @@ async def lifespan(app: FastAPI):
         await env.close()
 
 
-app = FastAPI(title="AgroBridge OpenEnv", version="1.0", lifespan=lifespan)
+app = FastAPI(
+    title="AgroBridge OpenEnv",
+    version="2.0",
+    description=(
+        "An OpenEnv-compatible reinforcement learning environment for "
+        "intelligent agricultural labor matching in rural India. "
+        "Built for the Meta × PyTorch OpenEnv Hackathon."
+    ),
+    lifespan=lifespan,
+)
 
 
-@app.get("/")
+def _require_env() -> AgroBridgeEnv:
+    if env is None:
+        raise HTTPException(status_code=503, detail="Environment not initialised.")
+    return env
+
+
+@app.get("/", tags=["Health"])
 async def root():
-    return {"status": "running", "message": "AgroBridge OpenEnv is live"}
+    return {"status": "running", "message": "AgroBridge OpenEnv is live", "version": "2.0"}
 
 
-@app.post("/reset")
+@app.post("/reset", response_model=StepResult, tags=["Environment"])
 async def reset():
-    result = await env.reset()
-    return result
+    """Reset the environment and start a new episode. Returns the initial observation."""
+    return await _require_env().reset()
 
 
-@app.post("/step")
+@app.post("/step", response_model=StepResult, tags=["Environment"])
 async def step(action: AgroBridgeAction):
-    result = await env.step(action)
-    return result
+    """
+    Take one step in the environment by assigning a farmer.
+
+    The agent message should name the farmer and optionally explain the reasoning.
+    Example: `{"message": "Assign Mahesh because he is a senior spraying expert."}`
+    """
+    e = _require_env()
+    if e.current_task is None:
+        raise HTTPException(status_code=400, detail="Call /reset before /step.")
+    return await e.step(action)
 
 
-@app.get("/state")
+@app.get("/state", tags=["Environment"])
 async def state():
-    return env.state()
+    """Return the full current environment state including all farmers and episode progress."""
+    return _require_env().state()
 
 
-@app.post("/close")
+@app.post("/close", tags=["Environment"])
 async def close():
-    await env.close()
+    """Cleanly close the environment and reset internal state."""
+    await _require_env().close()
     return {"status": "closed"}
