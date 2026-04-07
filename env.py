@@ -7,35 +7,57 @@ MAX_STEPS = 3
 
 
 class AgroBridgeEnv:
+    """
+    AgroBridge OpenEnv — multi-step RL environment for agricultural labor matching.
 
-    def __init__(self):
-        self.farmers = [
-            Farmer("Ramesh", "cotton",   experience="senior", available=True),
-            Farmer("Suresh", "rice",     experience="junior", available=True),
-            Farmer("Mahesh", "spraying", experience="senior", available=True),
-            Farmer("Dinesh", "tractor",  experience="junior", available=True),
-            Farmer("Naresh", "water",    experience="senior", available=True),
-            Farmer("Lokesh", "cotton",   experience="junior", available=True),
-            Farmer("Ganesh", "rice",     experience="senior", available=True),
+    The agent observes a job description with required skill, difficulty, and urgency,
+    then assigns one of the available farmers. Rewards are computed by graders.py using
+    skill match, experience level, and urgency multiplier.
+
+    Episode structure:
+    - reset()  → returns initial StepResult (done=False)
+    - step()   → returns StepResult with reward; done=True when max steps reached
+                 or a perfect reward (≥1.0) is achieved
+    - close()  → resets state cleanly
+    """
+
+    def __init__(self) -> None:
+        self.farmers: list[Farmer] = [
+            Farmer("Ramesh",  "cotton",   experience="senior"),
+            Farmer("Suresh",  "rice",     experience="junior"),
+            Farmer("Mahesh",  "spraying", experience="senior"),
+            Farmer("Dinesh",  "tractor",  experience="junior"),
+            Farmer("Naresh",  "water",    experience="senior"),
+            Farmer("Lokesh",  "cotton",   experience="junior"),
+            Farmer("Ganesh",  "rice",     experience="senior"),
         ]
-        self.current_task = None
-        self.step_count = 0
-        self.max_steps = MAX_STEPS
-        self.episode_rewards = []
+        self.current_task: dict | None = None
+        self.step_count: int = 0
+        self.max_steps: int = MAX_STEPS
+        self.episode_rewards: list[float] = []
 
-    def _randomize_availability(self):
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _randomize_availability(self) -> None:
         for farmer in self.farmers:
             farmer.available = random.random() > 0.3
         if not any(f.available for f in self.farmers):
             self.farmers[0].available = True
 
+    def _available_farmers(self) -> list[Farmer]:
+        return [f for f in self.farmers if f.available]
+
     def _build_observation(self) -> str:
-        available = [f for f in self.farmers if f.available]
+        available = self._available_farmers()
         farmer_list = ", ".join(
             f"{f.name} (skill:{f.skill}, level:{f.experience})"
             for f in available
         )
-        urgency_label = {1: "LOW", 2: "MEDIUM", 3: "HIGH"}[self.current_task["urgency"]]
+        urgency_label = {1: "LOW", 2: "MEDIUM", 3: "HIGH"}.get(
+            self.current_task["urgency"], "UNKNOWN"
+        )
         return (
             f"Job: {self.current_task['job']}. "
             f"Description: {self.current_task['description']} "
@@ -46,10 +68,16 @@ class AgroBridgeEnv:
             f"Available farmers: {farmer_list}."
         )
 
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
     async def reset(self) -> StepResult:
         self.current_task = random.choice(tasks)
         self.step_count = 0
         self.episode_rewards = []
+        for f in self.farmers:
+            f.available = True
         self._randomize_availability()
         return StepResult(observation=self._build_observation(), reward=0.0, done=False)
 
@@ -57,8 +85,8 @@ class AgroBridgeEnv:
         self.current_task = None
         self.step_count = 0
         self.episode_rewards = []
-        for farmer in self.farmers:
-            farmer.available = True
+        for f in self.farmers:
+            f.available = True
 
     def state(self) -> dict:
         return {
@@ -80,23 +108,52 @@ class AgroBridgeEnv:
     async def step(self, action: AgroBridgeAction) -> StepResult:
         self.step_count += 1
         message = action.message.lower()
+        available = self._available_farmers()
 
-        selected_farmer = None
-        for farmer in self.farmers:
-            if farmer.name.lower() in message and farmer.available:
+
+        if not available:
+            return StepResult(
+                observation=(
+                    "No farmers are available. Episode ended early. "
+                    f"Total episode rewards: {[round(r, 2) for r in self.episode_rewards]}."
+                ),
+                reward=0.0,
+                done=True,
+            )
+        selected_farmer: Farmer | None = None
+
+        for farmer in available:
+            if farmer.name.lower() in message:
                 selected_farmer = farmer
                 break
 
         if selected_farmer is None:
-            for farmer in self.farmers:
-                if farmer.skill.lower() in message and farmer.available:
+            for farmer in available:
+                if farmer.skill.lower() in message:
                     selected_farmer = farmer
                     break
 
+        # --- If the agent's message is ambiguous, penalise without consuming a farmer ---
         if selected_farmer is None:
-            available = [f for f in self.farmers if f.available]
-            selected_farmer = random.choice(available) if available else self.farmers[0]
-
+            if self.step_count >= self.max_steps:
+                return StepResult(
+                    observation=(
+                        "Ambiguous action — no farmer name or skill found in message. "
+                        "Episode ended. "
+                        f"Total episode rewards: {[round(r, 2) for r in self.episode_rewards]}."
+                    ),
+                    reward=0.0,
+                    done=True,
+                )
+            return StepResult(
+                observation=(
+                    "Ambiguous action — no farmer name or skill found in your message. "
+                    "Please name a farmer explicitly. "
+                    + self._build_observation()
+                ),
+                reward=0.0,
+                done=False,
+            )
         reward = grade_assignment(
             farmer_skill=selected_farmer.skill,
             farmer_experience=selected_farmer.experience,
@@ -115,7 +172,7 @@ class AgroBridgeEnv:
                 f"(skill:{selected_farmer.skill}, level:{selected_farmer.experience}) "
                 f"to '{self.current_task['job']}'. "
                 f"Final reward: {reward:.2f}. "
-                f"Total episode rewards: {[round(r,2) for r in self.episode_rewards]}."
+                f"Total episode rewards: {[round(r, 2) for r in self.episode_rewards]}."
             )
         else:
             obs = (
