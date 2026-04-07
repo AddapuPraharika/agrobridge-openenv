@@ -339,7 +339,7 @@ agrobridge-openenv/
 ├── env.py            # Core RL environment (multi-step, availability, urgency)
 ├── models.py         # Pydantic typed models (AgroBridgeAction, StepResult)
 ├── graders.py        # Difficulty-aware, experience-sensitive reward logic
-├── tasks.py          # 5 real-world agricultural tasks with urgency scores
+├── tasks.py          # 20 realistic agricultural tasks with difficulty and urgency levels
 ├── inference.py      # Baseline agent using Qwen2.5-72B via HF Inference Router
 ├── train.py           # PyTorch REINFORCE training example
 ├── openenv.yaml      # OpenEnv specification file
