@@ -16,12 +16,12 @@ import os
 import textwrap
 from typing import List, Optional
 
-from openai import AsyncOpenAI  # async client — no blocking event-loop calls
+from openai import AsyncOpenAI  
 
 from env import AgroBridgeEnv, MAX_STEPS
 from models import AgroBridgeAction
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# ── Configuration ──
 
 API_KEY: str = os.getenv("HF_TOKEN") or os.getenv("API_KEY") or ""
 API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
@@ -34,7 +34,6 @@ TEMPERATURE: float = 0.7
 MAX_TOKENS: int = 150
 SUCCESS_SCORE_THRESHOLD: float = 0.5
 
-# ── System prompt ──────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = textwrap.dedent("""
     You are an AI agent for an agricultural labor marketplace in rural India.
@@ -60,7 +59,7 @@ SYSTEM_PROMPT = textwrap.dedent("""
     "Assign Ramesh because he is a senior cotton farmer and the job requires cotton skill."
 """).strip()
 
-# ── Structured logging (OpenEnv standard) ─────────────────────────────────────
+
 
 def log_start(task: str, env: str, model: str) -> None:
     print(f"[START] task={task} env={env} model={model}", flush=True)
@@ -85,7 +84,6 @@ def log_end(success: bool, steps: int, rewards: List[float]) -> None:
         flush=True,
     )
 
-# ── Prompt builder ─────────────────────────────────────────────────────────────
 
 def build_user_prompt(
     step: int, last_obs: str, last_reward: float, history: List[str]
@@ -107,7 +105,7 @@ def build_user_prompt(
         Name the farmer explicitly and explain why.
     """).strip()
 
-# ── Async model call ───────────────────────────────────────────────────────────
+
 
 async def get_model_action(
     client: AsyncOpenAI,
@@ -133,7 +131,7 @@ async def get_model_action(
         print(f"[DEBUG] Model error: {exc}", flush=True)
         return "assign best available farmer"
 
-# ── Main episode loop ──────────────────────────────────────────────────────────
+
 
 async def main() -> None:
     if not API_KEY:
