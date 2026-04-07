@@ -230,6 +230,17 @@ This multi-step design forces the agent to **learn from suboptimal assignments**
 [END] success=true steps=1 rewards=1.00
 ```
 
+## 🔥 PyTorch Training
+
+AgroBridge includes a PyTorch training example (`train.py`) that trains a policy network (`AgroBridgePolicyNet`) using the REINFORCE algorithm.
+
+This demonstrates how reinforcement learning agents can be trained on the AgroBridge OpenEnv environment.
+
+Example:
+
+```bash
+python train.py
+
 ---
 
 ## 🚀 Setup Instructions
@@ -330,6 +341,7 @@ agrobridge-openenv/
 ├── graders.py        # Difficulty-aware, experience-sensitive reward logic
 ├── tasks.py          # 5 real-world agricultural tasks with urgency scores
 ├── inference.py      # Baseline agent using Qwen2.5-72B via HF Inference Router
+├── train.py           # PyTorch REINFORCE training example
 ├── openenv.yaml      # OpenEnv specification file
 ├── Dockerfile        # Container definition — Python 3.10, uvicorn
 ├── requirements.txt  # Python dependencies
