@@ -4,7 +4,7 @@ emoji: 🌾
 colorFrom: green
 colorTo: yellow
 sdk: docker
-pinned: false
+pinned: true
 ---
 # 🌾 AgroBridge OpenEnv
 
@@ -29,7 +29,7 @@ India has **120 million agricultural laborers** — the largest farm workforce i
 
 This is not a simple scheduling problem. Farmer availability changes daily, job urgency varies, and skill compatibility is nuanced. A rule-based system breaks down immediately in real conditions.
 
-**AgroBridge teaches an AI agent to solve this matching problem optimally — learning from reward signals across thousands of episodes.**
+**AgroBridge provides a reinforcement learning environment where agents can be trained and evaluated to solve this matching problem.**
 
 ---
 
