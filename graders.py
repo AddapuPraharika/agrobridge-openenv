@@ -1,19 +1,26 @@
-SKILL_GROUPS = {
-    "crop": {"cotton", "rice"},
+from typing import Literal
+
+SKILL_GROUPS: dict[str, set[str]] = {
+    "crop":      {"cotton", "rice"},
     "field_ops": {"spraying", "tractor"},
-    "resource": {"water"},
+    "resource":  {"water"},
 }
 
-EXPERIENCE_BONUS = {
+EXPERIENCE_BONUS: dict[str, dict[str, float]] = {
     "easy":   {"senior": 0.0,  "junior": 0.0},
     "medium": {"senior": 0.1,  "junior": -0.1},
     "hard":   {"senior": 0.2,  "junior": -0.2},
 }
 
-URGENCY_MULTIPLIER = {1: 1.0, 2: 1.1, 3: 1.2}
+URGENCY_MULTIPLIER: dict[int, float] = {
+    1: 1.0,
+    2: 1.1,
+    3: 1.2,
+}
 
 
-def get_skill_group(skill: str):
+def get_skill_group(skill: str | None) -> str | None:
+    """Return the skill group name for a given skill, or None if not found."""
     if skill is None:
         return None
     for group, skills in SKILL_GROUPS.items():
@@ -29,7 +36,25 @@ def grade_assignment(
     difficulty: str,
     urgency: int,
 ) -> float:
+    """
+    Compute the reward for assigning a farmer to a task.
 
+    Formula:
+        final_reward = clamp(0, 1, (base_reward + experience_bonus) * urgency_multiplier)
+
+    Base reward:
+        1.0  — exact skill match
+        0.5  — same skill group (partial match)
+        0.0  — no match
+
+    Experience bonus (applied by difficulty):
+        easy:   senior +0.0,  junior +0.0
+        medium: senior +0.1,  junior -0.1
+        hard:   senior +0.2,  junior -0.2
+
+    Urgency multiplier:
+        LOW (1): ×1.0 | MEDIUM (2): ×1.1 | HIGH (3): ×1.2
+    """
     if farmer_skill == required_skill:
         base_reward = 1.0
     else:
