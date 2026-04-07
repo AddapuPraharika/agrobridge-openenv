@@ -1,6 +1,12 @@
-openenv
-openai
-numpy
-pandas
-fastapi
-uvicorn
+# Web server
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# Pydantic (FastAPI dependency)
+pydantic==2.10.3
+
+# LLM inference client
+openai==1.58.1
+
+# PyTorch (CPU build)
+torch==2.5.1
