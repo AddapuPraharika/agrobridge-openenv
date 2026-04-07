@@ -1,0 +1,8 @@
+[project]
+name = "agrobridge-openenv"
+version = "0.1.0"
+description = "AgroBridge OpenEnv RL environment for agricultural labor matching"
+requires-python = ">=3.10"
+
+[tool.openenv]
+env_name = "agrobridge-openenv"
