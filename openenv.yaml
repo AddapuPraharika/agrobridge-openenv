@@ -22,9 +22,9 @@ tasks:
     grader: grade_easy
 
   - name: medium
-    description: Consider skill compatibility and partial reward for related skills
+    description: Partial skill match with contextual reward
     grader: grade_medium
 
   - name: hard
-    description: Handle complex multi-skill farmer-job scenarios under difficulty constraints
+    description: Complex multi-skill farmer-job matching under difficulty
     grader: grade_hard
