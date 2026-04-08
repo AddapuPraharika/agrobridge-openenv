@@ -1,52 +1,30 @@
 name: AgroBridgeEnv
-version: "1.0"
-description: >
-  RL environment for intelligent agricultural job-worker matching in rural India.
-  An AI agent learns to assign the right farmer to the right job based on skill,
-  experience, and urgency — maximizing reward across multi-step episodes.
+version: 1.0
+description: AI environment for matching farmers with agricultural jobs in rural India
 
 environment:
   observation_space:
-    type: string
-    description: Natural language description of current job and available farmers
+    job: string
+    required_skill: string
+    difficulty: string
+    farmers: list
 
   action_space:
-    type: string
-    description: Natural language message naming the farmer to assign
+    message: string
 
   reward_range:
-    min: 0.0
-    max: 1.0
-
-  max_steps: 3
+    min: 0.05
+    max: 0.95
 
 tasks:
-  - name: cotton_harvesting
-    description: Harvest mature cotton from 5-acre field before rainfall
-    difficulty: easy
-    required_skill: cotton
-    urgency: LOW
+  - name: easy
+    description: Match farmer skill exactly with job requirement
+    grader: grade_easy
 
-  - name: rice_planting
-    description: Plant paddy seedlings across flooded fields within monsoon window
-    difficulty: medium
-    required_skill: rice
-    urgency: MEDIUM
+  - name: medium
+    description: Consider skill compatibility and partial reward for related skills
+    grader: grade_medium
 
-  - name: pesticide_spraying
-    description: Emergency pesticide spraying to control locust outbreak across 12 acres
-    difficulty: hard
-    required_skill: spraying
-    urgency: HIGH
-
-  - name: tractor_ploughing
-    description: Deep ploughing of hard soil before sowing season begins
-    difficulty: hard
-    required_skill: tractor
-    urgency: MEDIUM
-
-  - name: irrigation_management
-    description: Manage drip irrigation channels for drought-affected crops urgently
-    difficulty: medium
-    required_skill: water
-    urgency: HIGH
+  - name: hard
+    description: Handle complex multi-skill farmer-job scenarios under difficulty constraints
+    grader: grade_hard
