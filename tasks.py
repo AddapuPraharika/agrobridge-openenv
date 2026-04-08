@@ -23,7 +23,7 @@ tasks = [
         "grader": grade_hard,
     },
     {
-        "name": "easy",
+        "name": "medium",
         "job": "irrigation management",
         "required_skill": "water",
         "difficulty": "medium",
