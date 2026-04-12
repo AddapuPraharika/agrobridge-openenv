@@ -50,3 +50,7 @@ class AgroBridgeEnv:
             echoed_message=f"Assigned {selected_farmer.name} to {self.current_task['job']}"
         )
         return StepResult(observation=obs, reward=reward, done=True)
+
+    async def close(self):
+        """Clean up environment resources. Required by the OpenEnv validator."""
+        pass
