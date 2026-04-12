@@ -1,12 +1,19 @@
+from pydantic import BaseModel
+
+
 class Farmer:
     def __init__(self, name: str, skill: str):
         self.name = name
         self.skill = skill
 
 
-class AgroBridgeAction:
-    def __init__(self, message: str):
-        self.message = message
+class AgroBridgeAction(BaseModel):
+    message: str = "0"
+
+
+class AgroBridgeObservation:
+    def __init__(self, echoed_message: str):
+        self.echoed_message = echoed_message
 
 
 class StepResult:
