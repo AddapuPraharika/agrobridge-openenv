@@ -14,26 +14,26 @@ async def startup():
 
 @app.get("/")
 async def root():
-    return {"message": "AgroBridge OpenEnv is running"}
+    return {"message": "AgroBridge OpenEnv environment is running"}
 
 
 @app.post("/reset")
 async def reset():
     result = await env.reset()
     return {
-        "observation": result.observation,
+        "observation": result.observation.echoed_message,
         "reward": result.reward,
-        "done": result.done,
+        "done": result.done
     }
 
 
 @app.post("/step")
-async def step(action: dict):
-    result = await env.step(AgroBridgeAction(message=action.get("message", "")))
+async def step(action: AgroBridgeAction):
+    result = await env.step(action)
     return {
-        "observation": result.observation,
+        "observation": result.observation.echoed_message,
         "reward": result.reward,
-        "done": result.done,
+        "done": result.done
     }
 
 
