@@ -43,7 +43,8 @@ class AgroBridgeEnv:
 
         reward = grade_assignment(
             selected_farmer.skill,
-            self.current_task["required_skill"]
+            self.current_task["required_skill"],
+            self.current_task["difficulty"]
         )
 
         obs = AgroBridgeObservation(
